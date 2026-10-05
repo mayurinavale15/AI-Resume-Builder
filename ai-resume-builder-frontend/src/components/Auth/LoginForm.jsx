@@ -1,10 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
+import api from "../../services/api";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+   const navigate = useNavigate();
 
   const {
     register,
@@ -12,9 +16,29 @@ function LoginForm() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success("Login Successful");
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/login", data);
+
+      console.log("Login Response:", response.data);
+
+      // Save JWT token
+      localStorage.setItem("token", response.data.token);
+
+      toast.success(response.data.message || "Login Successful");
+      navigate("/dashboard");
+      
+    } catch (error) {
+      console.error("Login Error:", error);
+
+      toast.error(
+        error.response?.data?.message || "Login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,9 +114,10 @@ function LoginForm() {
       {/* Login Button */}
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+        disabled={loading}
+        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
 
       {/* Divider */}
@@ -109,6 +134,7 @@ function LoginForm() {
       >
         Continue with Google
       </button>
+
     </form>
   );
 }

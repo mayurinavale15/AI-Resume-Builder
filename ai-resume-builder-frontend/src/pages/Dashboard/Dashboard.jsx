@@ -1,8 +1,30 @@
+import { useEffect } from "react";
+
 import DashboardLayout from "../../layouts/DashboardLayout";
 import DashboardCards from "../../components/Dashboard/DashboardCards";
 import RecentResumes from "../../components/Dashboard/RecentResumes";
+import api from "../../services/api";
 
 function Dashboard() {
+
+  useEffect(() => {
+    const fetchResumes = async () => {
+      try {
+        const response = await api.get("/resumes", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        console.log("My Resumes:", response.data);
+      } catch (error) {
+        console.error("Fetch Resumes Error:", error);
+      }
+    };
+
+    fetchResumes();
+  }, []);
+
   return (
     <DashboardLayout>
 

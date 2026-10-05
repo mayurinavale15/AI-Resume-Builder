@@ -5,20 +5,23 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-
-console.log("MONGO_URI =", process.env.MONGO_URI);
+import resumeRoutes from "./routes/resumeRoutes.js";
 
 const app = express();
-
-// Connect Database
-connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Database Connection
+connectDB();
+
+// Auth Routes
 app.use("/api/auth", authRoutes);
+
+// Resume Routes
+app.use("/api/resumes", resumeRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
